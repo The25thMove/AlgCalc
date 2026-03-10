@@ -745,9 +745,33 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="absolute bottom-8 left-0 right-0 text-center">
-                <p className={cn("text-[10px] uppercase tracking-widest", isDark ? "text-zinc-700" : "text-zinc-300")}>
-                  OmniCalc v2.5.0
+              <div className="mt-12 space-y-4 text-center">
+                <div className="space-y-1">
+                  <p className={cn("text-[10px] uppercase tracking-widest font-bold", isDark ? "text-zinc-600" : "text-zinc-400")}>
+                    Made by
+                  </p>
+                  <p className={cn("text-sm font-bold tracking-tight", isDark ? "text-zinc-200" : "text-zinc-800")}>
+                    Armaan Garg
+                  </p>
+                  <p className={cn("text-[10px] italic", isDark ? "text-zinc-500" : "text-zinc-400")}>
+                    a.k.a Gargustan From Kabristan
+                  </p>
+                  <p className={cn("text-[10px] italic", isDark ? "text-zinc-500" : "text-zinc-400")}>
+                    a.k.a Gargi
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-zinc-800/20 space-y-1">
+                  <p className={cn("text-[10px] uppercase tracking-widest font-bold", isDark ? "text-zinc-600" : "text-zinc-400")}>
+                    With help from
+                  </p>
+                  <p className={cn("text-xs font-medium", isDark ? "text-orange-500/80" : "text-orange-600/80")}>
+                    Gemini 3 Flash
+                  </p>
+                </div>
+
+                <p className={cn("text-[10px] uppercase tracking-[0.3em] pt-8 opacity-30", isDark ? "text-zinc-700" : "text-zinc-300")}>
+                  AlgCalc v2.5.0
                 </p>
               </div>
             </motion.div>
@@ -812,13 +836,19 @@ export default function App() {
         )}
 
         {/* Footer Info */}
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex flex-col items-center gap-2">
           <div className={cn(
             "flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-mono",
             isDark ? "text-zinc-600" : "text-zinc-400"
           )}>
             <Info size={10} />
             Precision Engine v2.4.0
+          </div>
+          <div className={cn(
+            "text-lg font-black tracking-[0.4em] uppercase opacity-10",
+            isDark ? "text-zinc-100" : "text-zinc-900"
+          )}>
+            AlgCalc
           </div>
         </div>
 
