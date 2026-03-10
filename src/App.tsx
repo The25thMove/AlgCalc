@@ -33,6 +33,7 @@ import { AlgebrAI } from './components/AlgebrAI';
 import { clsx } from 'clsx';
 import type { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { Analytics } from '@vercel/analytics/react';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -862,6 +863,7 @@ export default function App() {
           isDark ? "bg-zinc-500/5 opacity-100" : "bg-zinc-500/10 opacity-50"
         )} />
       </div>
+      <Analytics />
     </div>
   );
 }
