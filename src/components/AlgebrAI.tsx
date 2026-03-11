@@ -35,21 +35,29 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
 
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-      const response = await ai.models.generateContent({
+      const chat = ai.chats.create({
         model: "gemini-3-flash-preview",
-        contents: userMessage,
         config: {
-          systemInstruction: "You are AlgebrAI, a helpful math assistant. Solve word problems, equations, and explain mathematical concepts clearly. Use Markdown for formatting. For mathematical notation, ALWAYS use LaTeX wrapped in single dollar signs for inline math (e.g., $x^2$) and double dollar signs for block math (e.g., $$x^2$$). Do not use plain text for complex math.",
+          systemInstruction: "You are AlgebrAI, a helpful math assistant. Solve word problems, equations, and explain mathematical concepts clearly. Use Markdown for formatting. For mathematical notation, use LaTeX wrapped in $ for inline and $$ for block math. IMPORTANT: Provide a single, clear answer. Do not repeat the final result or any numbers multiple times in your response. Be concise.",
         },
       });
 
+      const response = await chat.sendMessage({ message: userMessage });
       const aiResponse = response.text || "I couldn't generate a response. Please try again.";
-      setMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
+      
+      // Ensure we don't add the same response twice if something went wrong
+      setMessages(prev => {
+        const lastMsg = prev[prev.length - 1];
+        if (lastMsg && lastMsg.role === 'ai' && lastMsg.content === aiResponse) {
+          return prev;
+        }
+        return [...prev, { role: 'ai', content: aiResponse }];
+      });
     } catch (error) {
       console.error("AI Error:", error);
       setMessages(prev => [...prev, { role: 'ai', content: "Sorry, I encountered an error. Please check your connection or try again later." }]);
