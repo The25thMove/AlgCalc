@@ -43,7 +43,8 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
       const chat = ai.chats.create({
         model: "gemini-3-flash-preview",
         config: {
-          systemInstruction: "You are AlgebrAI, a helpful math assistant. Solve word problems, equations, and explain mathematical concepts clearly. Use Markdown for formatting. For mathematical notation, use LaTeX wrapped in $ for inline and $$ for block math. IMPORTANT: Provide a single, clear answer. Do not repeat the final result or any numbers multiple times in your response. Be concise.",
+          systemInstruction: "You are AlgebrAI, a precise math assistant. Solve problems clearly using Markdown and LaTeX ($...$ or $$...$$). IMPORTANT: Do not repeat characters, words, or numbers (e.g., do not say 'SISI' or 'PP'). Ensure every word and mathematical symbol is written exactly once. Be concise and direct.",
+          temperature: 0,
         },
       });
 
