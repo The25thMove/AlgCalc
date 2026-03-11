@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import Markdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, Sparkles, Loader2, BrainCircuit, Trash2 } from 'lucide-react';
+import { Send, Sparkles, Loader2, BrainCircuit, MessageSquare, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -39,27 +39,18 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
     try {
-      // Use the environment variable for the API key
-      const apiKey = process.env.GEMINI_API_KEY;
-      
-      if (!apiKey) {
-        throw new Error("API Key is missing. If you are running this locally, ensure GEMINI_API_KEY is set.");
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
       const chat = ai.chats.create({
         model: "gemini-3-flash-preview",
         config: {
-          systemInstruction: "You are AlgebrAI, a fast and precise math assistant. Solve problems using Markdown and LaTeX ($...$ or $$...$$). IMPORTANT: Do not repeat characters or words (no 'SISI' or 'PP'). Be extremely concise. One clear answer only.",
-          temperature: 0,
-          // Set thinking level to LOW to reduce response time (latency)
-          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW }
+          systemInstruction: "You are AlgebrAI, a helpful math assistant. Solve word problems, equations, and explain mathematical concepts clearly. Use Markdown for formatting. For mathematical notation, use LaTeX wrapped in $ for inline and $$ for block math. IMPORTANT: Provide a single, clear answer. Do not repeat the final result or any numbers multiple times in your response. Be concise.",
         },
       });
 
       const response = await chat.sendMessage({ message: userMessage });
       const aiResponse = response.text || "I couldn't generate a response. Please try again.";
       
+      // Ensure we don't add the same response twice if something went wrong
       setMessages(prev => {
         const lastMsg = prev[prev.length - 1];
         if (lastMsg && lastMsg.role === 'ai' && lastMsg.content === aiResponse) {
@@ -67,13 +58,9 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
         }
         return [...prev, { role: 'ai', content: aiResponse }];
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("AI Error:", error);
-      const errorMessage = error.message?.includes("API Key") 
-        ? "API Key Error: Please make sure your Gemini API key is configured."
-        : "AlgebrAI is having trouble connecting. Please try again in a moment.";
-      
-      setMessages(prev => [...prev, { role: 'ai', content: errorMessage }]);
+      setMessages(prev => [...prev, { role: 'ai', content: "Sorry, I encountered an error. Please check your connection or try again later." }]);
     } finally {
       setIsLoading(false);
     }
@@ -102,6 +89,7 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
         )}
       </div>
 
+      {/* Chat Area */}
       <div 
         ref={scrollRef}
         className={cn(
@@ -118,10 +106,30 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
               <Sparkles size={32} />
             </div>
             <div>
-              <h4 className={cn("font-bold text-lg", isDark ? "text-zinc-200" : "text-zinc-800")}>Fast Math Solver</h4>
+              <h4 className={cn("font-bold text-lg", isDark ? "text-zinc-200" : "text-zinc-800")}>How can I help you today?</h4>
               <p className={cn("text-sm mt-1", isDark ? "text-zinc-500" : "text-zinc-400")}>
-                Ask me any math question for an instant, precise answer.
+                Ask me to solve an equation, explain a theorem, or help with a word problem.
               </p>
+            </div>
+            <div className="grid grid-cols-1 gap-2 w-full max-w-xs">
+              {[
+                "Solve: 2x + 5 = 15",
+                "What is the Pythagorean theorem?",
+                "Help with a calculus derivative"
+              ].map((suggestion, i) => (
+                <button
+                  key={i}
+                  onClick={() => setInput(suggestion)}
+                  className={cn(
+                    "text-xs p-3 rounded-xl border transition-all text-left",
+                    isDark 
+                      ? "bg-zinc-900/50 border-zinc-800 text-zinc-500 hover:border-orange-500/50 hover:text-orange-500" 
+                      : "bg-zinc-50 border-zinc-200 text-zinc-500 hover:border-orange-500/50 hover:text-orange-600"
+                  )}
+                >
+                  {suggestion}
+                </button>
+              ))}
             </div>
           </div>
         ) : (
@@ -136,7 +144,9 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
               {msg.role === 'user' ? (
                 <div className={cn(
                   "px-4 py-2 rounded-2xl text-sm font-bold max-w-[85%] shadow-sm",
-                  isDark ? "bg-zinc-800 text-white border border-zinc-700/50" : "bg-orange-500 text-white"
+                  isDark 
+                    ? "bg-zinc-800 text-white border border-zinc-700/50" 
+                    : "bg-orange-500 text-white"
                 )}>
                   {msg.content}
                 </div>
@@ -145,7 +155,10 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
                   "markdown-body prose prose-sm max-w-none overflow-x-auto leading-relaxed w-full",
                   isDark ? "prose-invert" : "prose-zinc"
                 )}>
-                  <Markdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                  <Markdown 
+                    remarkPlugins={[remarkMath]} 
+                    rehypePlugins={[rehypeKatex]}
+                  >
                     {msg.content}
                   </Markdown>
                 </div>
@@ -156,11 +169,12 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
         {isLoading && (
           <div className="flex items-center gap-2 text-orange-500">
             <Loader2 size={14} className="animate-spin" />
-            <span className="text-xs font-medium">AlgebrAI is calculating...</span>
+            <span className="text-xs font-medium">AlgebrAI is thinking...</span>
           </div>
         )}
       </div>
 
+      {/* Input Area */}
       <div className="relative">
         <textarea
           value={input}
@@ -171,7 +185,7 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
               handleSend();
             }
           }}
-          placeholder="Type your math problem..."
+          placeholder="Type your math problem here..."
           className={cn(
             "w-full border rounded-2xl pl-5 pr-14 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all resize-none h-20",
             isDark ? "bg-zinc-800/30 border-zinc-700 text-zinc-100 placeholder:text-zinc-700" : "bg-zinc-50 border-zinc-200 text-zinc-900 placeholder:text-zinc-300"
@@ -184,11 +198,19 @@ export const AlgebrAI = ({ theme }: AlgebrAIProps) => {
           disabled={!input.trim() || isLoading}
           className={cn(
             "absolute right-3 bottom-3 p-3 rounded-xl transition-all",
-            input.trim() && !isLoading ? "bg-orange-500 text-white shadow-lg" : "bg-zinc-700/20 text-zinc-500 cursor-not-allowed"
+            input.trim() && !isLoading
+              ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
+              : "bg-zinc-700/20 text-zinc-500 cursor-not-allowed"
           )}
         >
           <Send size={18} />
         </motion.button>
+      </div>
+      <div className={cn(
+        "mt-3 text-[10px] text-center opacity-40 font-medium tracking-tight",
+        isDark ? "text-zinc-500" : "text-zinc-400"
+      )}>
+        Powered by Gemini 3 Flash
       </div>
     </div>
   );
