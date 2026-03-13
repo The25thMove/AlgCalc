@@ -755,10 +755,10 @@ export default function App() {
                     Armaan Garg
                   </p>
                   <p className={cn("text-[10px] italic", isDark ? "text-zinc-500" : "text-zinc-400")}>
-                    a.k.a Gargustan From Kabristan
+                    S/o Harish Garg and Meenal Garg
                   </p>
                   <p className={cn("text-[10px] italic", isDark ? "text-zinc-500" : "text-zinc-400")}>
-                    a.k.a Gargi
+                    B/o Didi
                   </p>
                 </div>
 
