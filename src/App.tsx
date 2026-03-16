@@ -755,7 +755,7 @@ export default function App() {
                     Armaan Garg
                   </p>
                   <p className={cn("text-[10px] italic", isDark ? "text-zinc-500" : "text-zinc-400")}>
-                    S/o Papa and Mumma
+                    Friend of Adhvik
                   </p>
                   <p className={cn("text-[10px] italic", isDark ? "text-zinc-500" : "text-zinc-400")}>
                     B/o Didi
